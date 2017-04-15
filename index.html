@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Gif Search</title>
+  <style type="text/css">
+    button,
+    div,
+    form,
+    input {
+      margin: 10px;
+    }
+  </style>
+</head>
+<!-- Instructions:
+    Using either version of the starter code provided to you, complete the application so that various snippets of information about your gif are displayed underneath. As a suggestion, display at least each of the following:
+        gif Poster
+        Rating
+        Release Date
+        Plot -->
+<body>
+  <div class="container">
+    <h1>It's GifTastic!</h1>
+    <!-- Rendered buttons will get dumped Here  -->
+    <div id="buttons-view"></div>
+    <form id="gif-form">
+      <label for="gif-input">Search for a gif:</label>
+      <input type="text" id="gif-input"><br>
+      <!-- Button triggers new gif to be added -->
+      <input id="add-gif" type="submit" value="Let's Get Giffy!">
+    </form>
+    <!-- gifs will get dumped dere -->
+    <div id="gifs-view"></div>
+    <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript">
+      // Initial array of gifs
+      var gifs = ["The Matrix", "The Notebook", "Mr. Nobody", "The Lion King"];
+      // displaygifInfo function re-renders the HTML to display the appropriate content
+      function displaygifInfo() {
+        var gif = $(this).attr("data-gif");
+        var queryURL = "http://api.giphy.com/v1/gifs/search?q=" +
+          gif + "&api_key=dc6zaTOxFJmzC&limit=10";
+
+        $.ajax({
+            url: queryURL,
+            method: "GET"
+          })
+          .done(function(response) {
+
+            var results = response.data;
+
+            var gifDiv = $("<div class='gif'>");
+
+            for (var i = 0; i < results.length; i++) {
+
+
+
+              var rating = results[i].rating;
+
+              var p = $("<p>").text("Rating: " + rating);
+
+              var gifImage = $("<img>");
+              gifImage.attr("src", results[i].images.fixed_height.url);
+
+              gifDiv.prepend(p);
+              gifDiv.prepend(gifImage);
+
+              $("#gifs-view").prepend(gifDiv);
+            }
+          });
+      }
+      // Function for displaying gif data
+      function renderButtons() {
+        // Deleting the gifs prior to adding new gifs
+        // (this is necessary otherwise you will have repeat buttons)
+        $("#buttons-view").empty();
+        // Looping through the array of gifs
+        for (var i = 0; i < gifs.length; i++) {
+          // Then dynamicaly generating buttons for each gif in the array
+          // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
+          var a = $("<button>");
+          // Adding a class of gif to our button
+          a.addClass("gif");
+          // Adding a data-attribute
+          a.attr("data-gif", gifs[i]);
+          // Providing the initial button text
+          a.text(gifs[i]);
+          // Adding the button to the buttons-view div
+          $("#buttons-view").append(a);
+        }
+      }
+      // This function handles events where a gif button is clicked
+      $("#add-gif").on("click", function(event) {
+        event.preventDefault();
+        // This line grabs the input from the textbox
+        var gif = $("#gif-input").val().trim();
+        // Adding gif from the textbox to our array
+        gifs.push(gif);
+        // Calling renderButtons which handles the processing of our gif array
+        renderButtons();
+      });
+      // Adding a click event listener to all elements with a class of "gif"
+      $(document).on("click", ".gif", displaygifInfo);
+      // Calling the renderButtons function to display the intial buttons
+      renderButtons();
+    </script>
+  </div>
+</body>
+</html>
